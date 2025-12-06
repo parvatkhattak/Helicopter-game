@@ -284,22 +284,144 @@ void Game::render() {
 }
 
 void Game::renderMenu() {
-    // Title background
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect titleBg = {SCREEN_WIDTH/2 - 300, 150, 600, 400};
-    SDL_RenderFillRect(renderer, &titleBg);
+    // Draw some clouds in background
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+    SDL_Rect cloud1 = {100, 80, 120, 60};
+    SDL_Rect cloud2 = {900, 120, 150, 70};
+    SDL_Rect cloud3 = {450, 50, 100, 50};
+    SDL_RenderFillRect(renderer, &cloud1);
+    SDL_RenderFillRect(renderer, &cloud2);
+    SDL_RenderFillRect(renderer, &cloud3);
     
-    SDL_SetRenderDrawColor(renderer, 100, 200, 100, 255);
-    SDL_Rect titleBorder = {SCREEN_WIDTH/2 - 305, 145, 610, 410};
+    // Title banner - top section
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 230);
+    SDL_Rect titleBanner = {SCREEN_WIDTH/2 - 400, 100, 800, 120};
+    SDL_RenderFillRect(renderer, &titleBanner);
+    
+    // Title banner border (bright green)
+    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    SDL_Rect titleBorder = {SCREEN_WIDTH/2 - 405, 95, 810, 130};
     SDL_RenderDrawRect(renderer, &titleBorder);
+    SDL_Rect titleBorder2 = {SCREEN_WIDTH/2 - 403, 97, 806, 126};
+    SDL_RenderDrawRect(renderer, &titleBorder2);
     
-    // Simple text replacement (without SDL_ttf, we'll use basic shapes)
-    // In a real implementation, you'd use SDL_ttf here
+    // Title text simulation with colored blocks
+    // "HELICOPTER"
+    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    for (int i = 0; i < 10; i++) {
+        SDL_Rect letter = {SCREEN_WIDTH/2 - 250 + i * 50, 130, 40, 60};
+        SDL_RenderFillRect(renderer, &letter);
+    }
     
-    // "Press SPACE to Start" indicator
+    // "GAME" subtitle
+    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
+    for (int i = 0; i < 4; i++) {
+        SDL_Rect letter = {SCREEN_WIDTH/2 - 100 + i * 50, 180, 40, 30};
+        SDL_RenderFillRect(renderer, &letter);
+    }
+    
+    // Decorative helicopter (left side)
+    int heliX = 200;
+    int heliY = 350;
+    
+    // Left helicopter - green
+    SDL_SetRenderDrawColor(renderer, 50, 160, 50, 255);
+    SDL_Rect heli1Body = {heliX, heliY, 40, 15};
+    SDL_RenderFillRect(renderer, &heli1Body);
+    SDL_SetRenderDrawColor(renderer, 100, 200, 100, 255);
+    SDL_Rect heli1Cockpit = {heliX + 30, heliY - 5, 15, 20};
+    SDL_RenderFillRect(renderer, &heli1Cockpit);
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_Rect heli1Rotor = {heliX + 10, heliY - 3, 20, 2};
+    SDL_RenderFillRect(renderer, &heli1Rotor);
+    
+    // Right helicopter - red (enemy)
+    heliX = 1000;
+    SDL_SetRenderDrawColor(renderer, 220, 50, 50, 255);
+    SDL_Rect heli2Body = {heliX, heliY, 30, 12};
+    SDL_RenderFillRect(renderer, &heli2Body);
+    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
+    SDL_Rect heli2Cockpit = {heliX + 5, heliY - 5, 12, 15};
+    SDL_RenderFillRect(renderer, &heli2Cockpit);
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_Rect heli2Rotor = {heliX + 8, heliY - 3, 15, 2};
+    SDL_RenderFillRect(renderer, &heli2Rotor);
+    
+    // Controls panel
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
+    SDL_Rect controlPanel = {SCREEN_WIDTH/2 - 250, 280, 500, 180};
+    SDL_RenderFillRect(renderer, &controlPanel);
+    
+    SDL_SetRenderDrawColor(renderer, 100, 200, 255, 255);
+    SDL_Rect controlBorder = {SCREEN_WIDTH/2 - 253, 277, 506, 186};
+    SDL_RenderDrawRect(renderer, &controlBorder);
+    
+    // Control icons (simplified)
+    // SPACE/UP icon
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+    SDL_Rect spaceKey = {SCREEN_WIDTH/2 - 220, 310, 60, 30};
+    SDL_RenderFillRect(renderer, &spaceKey);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
+    SDL_Rect upArrow = {SCREEN_WIDTH/2 - 145, 310, 20, 30};
+    SDL_RenderFillRect(renderer, &upArrow);
+    
+    // Thrust indicator
+    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+    for (int i = 0; i < 3; i++) {
+        SDL_Rect bar = {SCREEN_WIDTH/2 - 100 + i * 40, 315, 30, 20};
+        SDL_RenderFillRect(renderer, &bar);
+    }
+    
+    // X for shoot
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+    SDL_Rect xKey = {SCREEN_WIDTH/2 - 220, 360, 30, 30};
+    SDL_RenderFillRect(renderer, &xKey);
+    
+    // Bullet indicators
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    SDL_Rect startIndicator = {SCREEN_WIDTH/2 - 100, 400, 200, 40};
-    SDL_RenderFillRect(renderer, &startIndicator);
+    for (int i = 0; i < 5; i++) {
+        SDL_Rect bullet = {SCREEN_WIDTH/2 - 170 + i * 25, 368, 15, 5};
+        SDL_RenderFillRect(renderer, &bullet);
+    }
+    
+    // ESC key
+    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+    SDL_Rect escKey = {SCREEN_WIDTH/2 - 220, 410, 40, 30};
+    SDL_RenderFillRect(renderer, &escKey);
+    
+    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
+    SDL_Rect quitIcon = {SCREEN_WIDTH/2 - 160, 413, 25, 25};
+    SDL_RenderFillRect(renderer, &quitIcon);
+    
+    // "PRESS SPACE TO START" button
+    static int blinkTimer = 0;
+    blinkTimer = (blinkTimer + 1) % 60;
+    
+    if (blinkTimer < 40) {  // Blinking effect
+        SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
+        SDL_Rect startButton = {SCREEN_WIDTH/2 - 200, 520, 400, 60};
+        SDL_RenderFillRect(renderer, &startButton);
+        
+        SDL_SetRenderDrawColor(renderer, 50, 200, 50, 255);
+        SDL_Rect startBorder = {SCREEN_WIDTH/2 - 203, 517, 406, 66};
+        SDL_RenderDrawRect(renderer, &startBorder);
+        
+        // "START" text simulation
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        for (int i = 0; i < 5; i++) {
+            SDL_Rect letter = {SCREEN_WIDTH/2 - 100 + i * 40, 535, 30, 30};
+            SDL_RenderFillRect(renderer, &letter);
+        }
+    }
+    
+    // High score display
+    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
+    SDL_Rect scoreBox = {SCREEN_WIDTH/2 - 100, 620, 200, 40};
+    SDL_RenderFillRect(renderer, &scoreBox);
+    
+    SDL_SetRenderDrawColor(renderer, 200, 200, 0, 255);
+    SDL_Rect scoreBorder = {SCREEN_WIDTH/2 - 103, 617, 206, 46};
+    SDL_RenderDrawRect(renderer, &scoreBorder);
 }
 
 void Game::renderHUD() {
