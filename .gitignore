@@ -1,0 +1,19 @@
+# Build artifacts
+*.o
+*.out
+helicopter_game
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Asset cache
+assets/.cache/
