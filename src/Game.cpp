@@ -482,9 +482,15 @@ void Game::run() {
 }
 
 void Game::cleanup() {
-    // Delete all entities
-    delete player;
-    delete terrain;
+    // Delete all entities with nullptr checks
+    if (player) {
+        delete player;
+        player = nullptr;
+    }
+    if (terrain) {
+        delete terrain;
+        terrain = nullptr;
+    }
     
     for (auto* b : bullets) delete b;
     for (auto* e : enemies) delete e;

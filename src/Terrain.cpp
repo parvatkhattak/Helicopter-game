@@ -57,28 +57,62 @@ void Terrain::update() {
 }
 
 void Terrain::render(SDL_Renderer* renderer) {
-    // Render ceiling
-    SDL_SetRenderDrawColor(renderer, 70, 70, 90, 255);
+    // Render ceiling with gradient effect
     for (size_t i = 0; i < points.size() - 1; i++) {
-        SDL_Rect rect = {
+        // Dark rocky ceiling
+        SDL_SetRenderDrawColor(renderer, 60, 60, 80, 255);
+        SDL_Rect ceilingRect = {
             points[i].x,
             0,
             points[i+1].x - points[i].x + 1,
             points[i].ceilingY
         };
-        SDL_RenderFillRect(renderer, &rect);
+        SDL_RenderFillRect(renderer, &ceilingRect);
+        
+        // Ceiling edge/border (darker)
+        SDL_SetRenderDrawColor(renderer, 40, 40, 60, 255);
+        SDL_RenderDrawLine(renderer, points[i].x, points[i].ceilingY, 
+                          points[i+1].x, points[i+1].ceilingY);
     }
     
-    // Render ground
-    SDL_SetRenderDrawColor(renderer, 50, 100, 50, 255);
+    // Render ground with layers for depth
     for (size_t i = 0; i < points.size() - 1; i++) {
-        SDL_Rect rect = {
+        int groundY = points[i].groundY;
+        
+        // Grass layer (top)
+        SDL_SetRenderDrawColor(renderer, 80, 150, 60, 255);
+        SDL_Rect grassRect = {
             points[i].x,
-            points[i].groundY,
+            groundY,
             points[i+1].x - points[i].x + 1,
-            screenHeight - points[i].groundY
+            8
         };
-        SDL_RenderFillRect(renderer, &rect);
+        SDL_RenderFillRect(renderer, &grassRect);
+        
+        // Dirt layer (middle)
+        SDL_SetRenderDrawColor(renderer, 100, 80, 50, 255);
+        SDL_Rect dirtRect = {
+            points[i].x,
+            groundY + 8,
+            points[i+1].x - points[i].x + 1,
+            12
+        };
+        SDL_RenderFillRect(renderer, &dirtRect);
+        
+        // Rock layer (bottom)
+        SDL_SetRenderDrawColor(renderer, 70, 60, 50, 255);
+        SDL_Rect rockRect = {
+            points[i].x,
+            groundY + 20,
+            points[i+1].x - points[i].x + 1,
+            screenHeight - (groundY + 20)
+        };
+        SDL_RenderFillRect(renderer, &rockRect);
+        
+        // Ground edge highlight
+        SDL_SetRenderDrawColor(renderer, 100, 180, 80, 255);
+        SDL_RenderDrawLine(renderer, points[i].x, groundY, 
+                          points[i+1].x, points[i+1].groundY);
     }
 }
 
