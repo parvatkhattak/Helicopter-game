@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <vector>
 #include "Helicopter.h"
 #include "Bullet.h"
@@ -42,6 +43,11 @@ private:
     int enemySpawnTimer;
     int obstacleSpawnTimer;
     
+    // Fonts
+    TTF_Font* fontLarge;
+    TTF_Font* fontMedium;
+    TTF_Font* fontSmall;
+    
     // Screen dimensions
     static constexpr int SCREEN_WIDTH = 1280;
     static constexpr int SCREEN_HEIGHT = 720;
@@ -61,6 +67,7 @@ private:
     void renderGameOver();
     void loadHighScore();
     void saveHighScore();
+    void renderText(const char* text, int x, int y, TTF_Font* font, SDL_Color color, bool centered = false);
     
 public:
     Game();

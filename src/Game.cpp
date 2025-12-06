@@ -10,7 +10,8 @@ Game::Game()
     : window(nullptr), renderer(nullptr), running(false), 
       state(GameState::MENU), player(nullptr), terrain(nullptr),
       score(0), highScore(0), distanceTraveled(0), enemiesKilled(0),
-      enemySpawnTimer(0), obstacleSpawnTimer(0) {
+      enemySpawnTimer(0), obstacleSpawnTimer(0),
+      fontLarge(nullptr), fontMedium(nullptr), fontSmall(nullptr) {
     
     srand(time(nullptr));
 }
@@ -23,6 +24,12 @@ bool Game::init() {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    
+    // Initialize SDL_ttf
+    if (TTF_Init() < 0) {
+        std::cerr << "SDL_ttf could not initialize! TTF_Error: " << TTF_GetError() << std::endl;
         return false;
     }
     
@@ -42,6 +49,33 @@ bool Game::init() {
     if (!renderer) {
         std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
+    }
+    
+    // Load fonts - try multiple common font paths
+    const char* fontPaths[] = {
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "C:\\Windows\\Fonts\\arial.ttf"
+    };
+    
+    bool fontLoaded = false;
+    for (const char* fontPath : fontPaths) {
+        fontLarge = TTF_OpenFont(fontPath, 72);
+        fontMedium = TTF_OpenFont(fontPath, 48);
+        fontSmall = TTF_OpenFont(fontPath, 24);
+        
+        if (fontLarge && fontMedium && fontSmall) {
+            fontLoaded = true;
+            std::cout << "Fonts loaded from: " << fontPath << std::endl;
+            break;
+        }
+    }
+    
+    if (!fontLoaded) {
+        std::cerr << "Warning: Could not load fonts! Using fallback rendering." << std::endl;
+        // Game can still run without fonts, just won't show text
     }
     
     // Initialize game objects
@@ -284,7 +318,7 @@ void Game::render() {
 }
 
 void Game::renderMenu() {
-    // Draw some clouds in background
+    // Draw clouds in background
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
     SDL_Rect cloud1 = {100, 80, 120, 60};
     SDL_Rect cloud2 = {900, 120, 150, 70};
@@ -293,177 +327,154 @@ void Game::renderMenu() {
     SDL_RenderFillRect(renderer, &cloud2);
     SDL_RenderFillRect(renderer, &cloud3);
     
-    // Title banner - top section
-    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 230);
-    SDL_Rect titleBanner = {SCREEN_WIDTH/2 - 400, 100, 800, 120};
-    SDL_RenderFillRect(renderer, &titleBanner);
+    // Title
+    SDL_Color titleColor = {100, 255, 100, 255};
+    renderText("HELICOPTER GAME", SCREEN_WIDTH/2, 150, fontLarge, titleColor, true);
     
-    // Title banner border (bright green)
-    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    SDL_Rect titleBorder = {SCREEN_WIDTH/2 - 405, 95, 810, 130};
-    SDL_RenderDrawRect(renderer, &titleBorder);
-    SDL_Rect titleBorder2 = {SCREEN_WIDTH/2 - 403, 97, 806, 126};
-    SDL_RenderDrawRect(renderer, &titleBorder2);
-    
-    // Title text simulation with colored blocks
-    // "HELICOPTER"
-    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    for (int i = 0; i < 10; i++) {
-        SDL_Rect letter = {SCREEN_WIDTH/2 - 250 + i * 50, 130, 40, 60};
-        SDL_RenderFillRect(renderer, &letter);
-    }
-    
-    // "GAME" subtitle
-    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
-    for (int i = 0; i < 4; i++) {
-        SDL_Rect letter = {SCREEN_WIDTH/2 - 100 + i * 50, 180, 40, 30};
-        SDL_RenderFillRect(renderer, &letter);
-    }
-    
-    // Decorative helicopter (left side)
-    int heliX = 200;
-    int heliY = 350;
+    // Decorative helicopters
+    int heliY = 280;
     
     // Left helicopter - green
     SDL_SetRenderDrawColor(renderer, 50, 160, 50, 255);
-    SDL_Rect heli1Body = {heliX, heliY, 40, 15};
+    SDL_Rect heli1Body = {200, heliY, 40, 15};
     SDL_RenderFillRect(renderer, &heli1Body);
     SDL_SetRenderDrawColor(renderer, 100, 200, 100, 255);
-    SDL_Rect heli1Cockpit = {heliX + 30, heliY - 5, 15, 20};
+    SDL_Rect heli1Cockpit = {230, heliY - 5, 15, 20};
     SDL_RenderFillRect(renderer, &heli1Cockpit);
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_Rect heli1Rotor = {heliX + 10, heliY - 3, 20, 2};
-    SDL_RenderFillRect(renderer, &heli1Rotor);
     
-    // Right helicopter - red (enemy)
-    heliX = 1000;
+    // Right helicopter - red
     SDL_SetRenderDrawColor(renderer, 220, 50, 50, 255);
-    SDL_Rect heli2Body = {heliX, heliY, 30, 12};
+    SDL_Rect heli2Body = {1000, heliY, 30, 12};
     SDL_RenderFillRect(renderer, &heli2Body);
     SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
-    SDL_Rect heli2Cockpit = {heliX + 5, heliY - 5, 12, 15};
+    SDL_Rect heli2Cockpit = {1005, heliY - 5, 12, 15};
     SDL_RenderFillRect(renderer, &heli2Cockpit);
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_Rect heli2Rotor = {heliX + 8, heliY - 3, 15, 2};
-    SDL_RenderFillRect(renderer, &heli2Rotor);
     
-    // Controls panel
-    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
-    SDL_Rect controlPanel = {SCREEN_WIDTH/2 - 250, 280, 500, 180};
-    SDL_RenderFillRect(renderer, &controlPanel);
+    // Controls box
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 220);
+    SDL_Rect controlBox = {SCREEN_WIDTH/2 - 300, 320, 600, 240};
+    SDL_RenderFillRect(renderer, &controlBox);
     
     SDL_SetRenderDrawColor(renderer, 100, 200, 255, 255);
-    SDL_Rect controlBorder = {SCREEN_WIDTH/2 - 253, 277, 506, 186};
+    SDL_Rect controlBorder = {SCREEN_WIDTH/2 - 303, 317, 606, 246};
     SDL_RenderDrawRect(renderer, &controlBorder);
     
-    // Control icons (simplified)
-    // SPACE/UP icon
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-    SDL_Rect spaceKey = {SCREEN_WIDTH/2 - 220, 310, 60, 30};
-    SDL_RenderFillRect(renderer, &spaceKey);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
-    SDL_Rect upArrow = {SCREEN_WIDTH/2 - 145, 310, 20, 30};
-    SDL_RenderFillRect(renderer, &upArrow);
+    // Controls text
+    SDL_Color whiteColor = {255, 255, 255, 255};
+    SDL_Color yellowColor = {255, 255, 100, 255};
     
-    // Thrust indicator
-    SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-    for (int i = 0; i < 3; i++) {
-        SDL_Rect bar = {SCREEN_WIDTH/2 - 100 + i * 40, 315, 30, 20};
-        SDL_RenderFillRect(renderer, &bar);
-    }
+    renderText("CONTROLS:", SCREEN_WIDTH/2, 340, fontMedium, yellowColor, true);
+    renderText("SPACE / UP ARROW - Thrust", SCREEN_WIDTH/2, 395, fontSmall, whiteColor, true);
+    renderText("X - Shoot", SCREEN_WIDTH/2, 435, fontSmall, whiteColor, true);
+    renderText("P / ESC - Pause", SCREEN_WIDTH/2, 475, fontSmall, whiteColor, true);
+    renderText("ESC - Quit (from menu)", SCREEN_WIDTH/2, 515, fontSmall, whiteColor, true);
     
-    // X for shoot
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-    SDL_Rect xKey = {SCREEN_WIDTH/2 - 220, 360, 30, 30};
-    SDL_RenderFillRect(renderer, &xKey);
-    
-    // Bullet indicators
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    for (int i = 0; i < 5; i++) {
-        SDL_Rect bullet = {SCREEN_WIDTH/2 - 170 + i * 25, 368, 15, 5};
-        SDL_RenderFillRect(renderer, &bullet);
-    }
-    
-    // ESC key
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-    SDL_Rect escKey = {SCREEN_WIDTH/2 - 220, 410, 40, 30};
-    SDL_RenderFillRect(renderer, &escKey);
-    
-    SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
-    SDL_Rect quitIcon = {SCREEN_WIDTH/2 - 160, 413, 25, 25};
-    SDL_RenderFillRect(renderer, &quitIcon);
-    
-    // "PRESS SPACE TO START" button
+    // Blinking start button
     static int blinkTimer = 0;
     blinkTimer = (blinkTimer + 1) % 60;
     
-    if (blinkTimer < 40) {  // Blinking effect
-        SDL_SetRenderDrawColor(renderer, 100, 255, 100, 255);
-        SDL_Rect startButton = {SCREEN_WIDTH/2 - 200, 520, 400, 60};
-        SDL_RenderFillRect(renderer, &startButton);
-        
-        SDL_SetRenderDrawColor(renderer, 50, 200, 50, 255);
-        SDL_Rect startBorder = {SCREEN_WIDTH/2 - 203, 517, 406, 66};
-        SDL_RenderDrawRect(renderer, &startBorder);
-        
-        // "START" text simulation
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        for (int i = 0; i < 5; i++) {
-            SDL_Rect letter = {SCREEN_WIDTH/2 - 100 + i * 40, 535, 30, 30};
-            SDL_RenderFillRect(renderer, &letter);
-        }
+    if (blinkTimer < 40) {
+        SDL_Color startColor = {100, 255, 100, 255};
+        renderText("PRESS SPACE TO START", SCREEN_WIDTH/2, 600, fontMedium, startColor, true);
     }
     
-    // High score display
-    SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
-    SDL_Rect scoreBox = {SCREEN_WIDTH/2 - 100, 620, 200, 40};
-    SDL_RenderFillRect(renderer, &scoreBox);
-    
-    SDL_SetRenderDrawColor(renderer, 200, 200, 0, 255);
-    SDL_Rect scoreBorder = {SCREEN_WIDTH/2 - 103, 617, 206, 46};
-    SDL_RenderDrawRect(renderer, &scoreBorder);
+    // High score
+    if (highScore > 0) {
+        SDL_Color scoreColor = {255, 255, 0, 255};
+        char scoreText[100];
+        snprintf(scoreText, sizeof(scoreText), "HIGH SCORE: %d", highScore);
+        renderText(scoreText, SCREEN_WIDTH/2, 660, fontSmall, scoreColor, true);
+    }
 }
 
 void Game::renderHUD() {
-    // Health bar
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_Rect healthBg = {10, 10, 200, 20};
+    // Health bar background
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_Rect healthBg = {15, 15, 205, 30};
     SDL_RenderFillRect(renderer, &healthBg);
     
+    // Health bar fill
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_Rect health = {10, 10, player->getHealth() * 2, 20};
+    int healthWidth = static_cast<int>(player->getHealth() * 2.0f);
+    SDL_Rect health = {15, 15, healthWidth, 30};
     SDL_RenderFillRect(renderer, &health);
     
+    // Health bar border
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &healthBg);
     
-    // Score indicator (simplified - just colored rectangles)
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    SDL_Rect scoreBox = {SCREEN_WIDTH - 150, 10, 140, 30};
-    SDL_RenderFillRect(renderer, &scoreBox);
+    // Health text
+    SDL_Color whiteColor = {255, 255, 255, 255};
+    char healthText[50];
+    snprintf(healthText, sizeof(healthText), "HEALTH: %d%%", player->getHealth());
+    renderText(healthText, 120, 24, fontSmall, whiteColor, true);
     
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderDrawRect(renderer, &scoreBox);
+    // Score display
+    SDL_Color yellowColor = {255, 255, 0, 255};
+    char scoreText[100];
+    snprintf(scoreText, sizeof(scoreText), "SCORE: %d", score);
+    renderText(scoreText, SCREEN_WIDTH - 150, 20, fontSmall, yellowColor, false);
+    
+    // Distance traveled
+    char distText[100];
+    snprintf(distText, sizeof(distText), "DISTANCE: %.0fm", distanceTraveled);
+    renderText(distText, SCREEN_WIDTH - 150, 50, fontSmall, whiteColor, false);
+    
+    // Enemies killed
+    char killText[100];
+    snprintf(killText, sizeof(killText), "KILLS: %d", enemiesKilled);
+    renderText(killText, SCREEN_WIDTH - 150, 80, fontSmall, whiteColor, false);
 }
 
 void Game::renderGameOver() {
-    // Game over overlay
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    // Dark overlay
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
     SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
     SDL_RenderFillRect(renderer, &overlay);
     
-    // Game over box
-    SDL_SetRenderDrawColor(renderer, 200, 0, 0, 255);
-    SDL_Rect gameOverBox = {SCREEN_WIDTH/2 - 250, 200, 500, 300};
+    // Game Over box
+    SDL_SetRenderDrawColor(renderer, 60, 0, 0, 240);
+    SDL_Rect gameOverBox = {SCREEN_WIDTH/2 - 300, 180, 600, 380};
     SDL_RenderFillRect(renderer, &gameOverBox);
     
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, &gameOverBox);
+    SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+    SDL_Rect border = {SCREEN_WIDTH/2 - 305, 175, 610, 390};
+    SDL_RenderDrawRect(renderer, &border);
     
-    // Restart indicator
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    SDL_Rect restartBox = {SCREEN_WIDTH/2 - 150, 400, 300, 50};
-    SDL_RenderFillRect(renderer, &restartBox);
+    // Game Over text
+    SDL_Color redColor = {255, 50, 50, 255};
+    renderText("GAME OVER", SCREEN_WIDTH/2, 230, fontLarge, redColor, true);
+    
+    // Final stats
+    SDL_Color whiteColor = {255, 255, 255, 255};
+    SDL_Color yellowColor = {255, 255, 100, 255};
+    
+    char finalScore[100];
+    snprintf(finalScore, sizeof(finalScore), "FINAL SCORE: %d", score);
+    renderText(finalScore, SCREEN_WIDTH/2, 330, fontMedium, yellowColor, true);
+    
+    char distText[100];
+    snprintf(distText, sizeof(distText), "DISTANCE: %.0fm", distanceTraveled);
+    renderText(distText, SCREEN_WIDTH/2, 385, fontSmall, whiteColor, true);
+    
+    char  killText[100];
+    snprintf(killText, sizeof(killText), "ENEMIES KILLED: %d", enemiesKilled);
+    renderText(killText, SCREEN_WIDTH/2, 420, fontSmall, whiteColor, true);
+    
+    // High score notification
+    if (score == highScore && score > 0) {
+        SDL_Color greenColor = {100, 255, 100, 255};
+        renderText("NEW HIGH SCORE!", SCREEN_WIDTH/2, 465, fontMedium, greenColor, true);
+    } else if (highScore > 0) {
+        char highScoreText[100];
+        snprintf(highScoreText, sizeof(highScoreText), "HIGH SCORE: %d", highScore);
+        renderText(highScoreText, SCREEN_WIDTH/2, 465, fontSmall, whiteColor, true);
+    }
+    
+    // Instructions
+    SDL_Color lightGreenColor = {150, 255, 150, 255};
+    renderText("PRESS SPACE TO RESTART", SCREEN_WIDTH/2, 510, fontSmall, lightGreenColor, true);
+    renderText("PRESS ESC FOR MENU", SCREEN_WIDTH/2, 540, fontSmall, whiteColor, true);
 }
 
 void Game::spawnEnemy() {
@@ -624,6 +635,20 @@ void Game::cleanup() {
     obstacles.clear();
     particles.clear();
     
+    // Close fonts
+    if (fontLarge) {
+        TTF_CloseFont(fontLarge);
+        fontLarge = nullptr;
+    }
+    if (fontMedium) {
+        TTF_CloseFont(fontMedium);
+        fontMedium = nullptr;
+    }
+    if (fontSmall) {
+        TTF_CloseFont(fontSmall);
+        fontSmall = nullptr;
+    }
+    
     // Destroy SDL objects
     if (renderer) {
         SDL_DestroyRenderer(renderer);
@@ -635,5 +660,36 @@ void Game::cleanup() {
         window = nullptr;
     }
     
+    TTF_Quit();
     SDL_Quit();
+}
+
+void Game::renderText(const char* text, int x, int y, TTF_Font* font, SDL_Color color, bool centered) {
+    if (!font) return;  // Fallback if font not loaded
+    
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    if (!surface) return;
+    
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture) {
+        SDL_FreeSurface(surface);
+        return;
+    }
+    
+    SDL_Rect destRect;
+    destRect.w = surface->w;
+    destRect.h = surface->h;
+    
+    if (centered) {
+        destRect.x = x - surface->w / 2;
+        destRect.y = y - surface->h / 2;
+    } else {
+        destRect.x = x;
+        destRect.y = y;
+    }
+    
+    SDL_RenderCopy(renderer, texture, nullptr, &destRect);
+    
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }
