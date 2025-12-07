@@ -138,8 +138,8 @@ void Game::update() {
     
     // Get keyboard state
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
-    bool thrust = keyState[SDL_SCANCODE_SPACE] || keyState[SDL_SCANCODE_UP];
-    bool shoot = keyState[SDL_SCANCODE_SPACE] || keyState[SDL_SCANCODE_X];
+    bool thrust = keyState[SDL_SCANCODE_UP];  // Only UP arrow for thrust
+    bool shoot = keyState[SDL_SCANCODE_SPACE] || keyState[SDL_SCANCODE_X];  // SPACE or X for shooting
     
     // Update player
     player->update(thrust, shoot, bullets);
@@ -364,8 +364,8 @@ void Game::renderMenu() {
     SDL_Color yellowColor = {255, 255, 100, 255};
     
     renderText("CONTROLS:", SCREEN_WIDTH/2, 340, fontMedium, yellowColor, true);
-    renderText("SPACE / UP ARROW - Thrust", SCREEN_WIDTH/2, 395, fontSmall, whiteColor, true);
-    renderText("X - Shoot", SCREEN_WIDTH/2, 435, fontSmall, whiteColor, true);
+    renderText("UP ARROW - Thrust (Hold to rise)", SCREEN_WIDTH/2, 395, fontSmall, whiteColor, true);
+    renderText("SPACE / X - Shoot", SCREEN_WIDTH/2, 435, fontSmall, whiteColor, true);
     renderText("P / ESC - Pause", SCREEN_WIDTH/2, 475, fontSmall, whiteColor, true);
     renderText("ESC - Quit (from menu)", SCREEN_WIDTH/2, 515, fontSmall, whiteColor, true);
     

@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     
     std::cout << "=== Helicopter Game ===" << std::endl;
     std::cout << "Controls:" << std::endl;
-    std::cout << "  SPACE/UP ARROW - Thrust (hold to rise, release to fall)" << std::endl;
+    std::cout << "  UP ARROW - Thrust (hold to rise, release to fall)" << std::endl;
     std::cout << "  SPACE/X - Shoot" << std::endl;
     std::cout << "  P/ESC - Pause" << std::endl;
     std::cout << "  ESC - Quit (from menu)" << std::endl;
