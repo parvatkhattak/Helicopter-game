@@ -17,7 +17,7 @@ private:
     
     // Physics constants
     static constexpr float GRAVITY = 0.5f;
-    static constexpr float THRUST = -1.2f;
+    static constexpr float THRUST = -2.5f;  // Increased for more responsive tapping
     static constexpr float MAX_FALL_SPEED = 10.0f;
     static constexpr float MAX_RISE_SPEED = -8.0f;
     
