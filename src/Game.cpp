@@ -111,10 +111,6 @@ void Game::handleEvents() {
                     if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_p) {
                         state = GameState::PAUSED;
                     }
-                    // Detect UP arrow tap for thrust
-                    if (event.key.keysym.sym == SDLK_UP && !event.key.repeat) {
-                        thrustPressed = true;
-                    }
                     break;
                     
                 case GameState::PAUSED:
@@ -140,15 +136,13 @@ void Game::handleEvents() {
 void Game::update() {
     if (state != GameState::PLAYING) return;
     
-    // Get keyboard state for continuous actions (shooting)
+    // Get keyboard state for continuous control
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+    bool thrust = keyState[SDL_SCANCODE_UP];  // Hold UP arrow for thrust
     bool shoot = keyState[SDL_SCANCODE_SPACE] || keyState[SDL_SCANCODE_X];  // SPACE or X for shooting
     
-    // Update player (thrust uses event-based thrustPressed flag)
-    player->update(thrustPressed, shoot, bullets);
-    
-    // Reset thrust flag after processing (one-frame impulse)
-    thrustPressed = false;
+    // Update player
+    player->update(thrust, shoot, bullets);
     
     // Update terrain
     terrain->update();
@@ -370,7 +364,7 @@ void Game::renderMenu() {
     SDL_Color yellowColor = {255, 255, 100, 255};
     
     renderText("CONTROLS:", SCREEN_WIDTH/2, 340, fontMedium, yellowColor, true);
-    renderText("UP ARROW - Thrust (Tap to rise)", SCREEN_WIDTH/2, 395, fontSmall, whiteColor, true);
+    renderText("UP ARROW - Thrust (Hold to rise)", SCREEN_WIDTH/2, 395, fontSmall, whiteColor, true);
     renderText("SPACE / X - Shoot", SCREEN_WIDTH/2, 435, fontSmall, whiteColor, true);
     renderText("P / ESC - Pause", SCREEN_WIDTH/2, 475, fontSmall, whiteColor, true);
     renderText("ESC - Quit (from menu)", SCREEN_WIDTH/2, 515, fontSmall, whiteColor, true);
