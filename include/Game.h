@@ -43,6 +43,9 @@ private:
     int enemySpawnTimer;
     int obstacleSpawnTimer;
     
+    // Input flags
+    bool thrustPressed;  // For tap-based thrust control
+    
     // Fonts
     TTF_Font* fontLarge;
     TTF_Font* fontMedium;

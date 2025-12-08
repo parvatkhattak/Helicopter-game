@@ -11,12 +11,14 @@ Helicopter::Helicopter(float startX, float startY)
 void Helicopter::update(bool thrustKey, bool shootKey, std::vector<Bullet*>& bullets) {
     if (!isAlive) return;
     
-    // Apply thrust or gravity
+    // Apply impulse on thrust tap (instead of continuous thrust)
+    // Note: thrustKey will be true for one frame per tap
     if (thrustKey) {
-        velocityY += THRUST;
-    } else {
-        velocityY += GRAVITY;
+        velocityY = THRUST;  // Set velocity directly for instant response
     }
+    
+    // Always apply gravity
+    velocityY += GRAVITY;
     
     // Clamp velocity
     velocityY = std::max(MAX_RISE_SPEED, std::min(MAX_FALL_SPEED, velocityY));
