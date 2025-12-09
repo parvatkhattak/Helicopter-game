@@ -485,37 +485,36 @@ void Game::renderHUD() {
     SDL_Color shadowColor = {0, 0, 0, 255};
     SDL_Color whiteColor = {255, 255, 255, 255};
     char healthText[50];
-    snprintf(healthText, sizeof(healthText), "HEALTH: %d%%", health);
+    snprintf(healthText, sizeof(healthText), "HP: %d%%", health);
     renderText(healthText, 121, 29, fontSmall, shadowColor, true);  // Shadow
     renderText(healthText, 120, 28, fontSmall, whiteColor, true);   // Text
     
-    // Stats panel (semi-transparent)
+    // Stats panel (semi-transparent) - adjusted to fit within screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect statsPanel = {SCREEN_WIDTH - 260, 10, 250, 110};
+    SDL_Rect statsPanel = {SCREEN_WIDTH - 240, 10, 230, 100};
     SDL_RenderFillRect(renderer, &statsPanel);
     
     SDL_SetRenderDrawColor(renderer, 100, 100, 100, 200);
     SDL_RenderDrawRect(renderer, &statsPanel);
     
-    // Score with glow effect
+    // Score with shadow - adjusted positioning
     SDL_Color yellowColor = {255, 255, 100, 255};
-    SDL_Color goldColor = {255, 215, 0, 255};
     char scoreText[100];
     snprintf(scoreText, sizeof(scoreText), "SCORE: %d", score);
-    renderText(scoreText, SCREEN_WIDTH - 136, 29, fontSmall, shadowColor, false);
-    renderText(scoreText, SCREEN_WIDTH - 135, 28, fontSmall, yellowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 125, 23, fontSmall, shadowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 124, 22, fontSmall, yellowColor, false);
     
-    // Distance
+    // Distance - adjusted positioning  
     char distText[100];
-    snprintf(distText, sizeof(distText), "DISTANCE: %.0fm", distanceTraveled);
-    renderText(distText, SCREEN_WIDTH - 136, 59, fontSmall, shadowColor, false);
-    renderText(distText, SCREEN_WIDTH - 135, 58, fontSmall, whiteColor, false);
+    snprintf(distText, sizeof(distText), "DIST: %.0fm", distanceTraveled);
+    renderText(distText, SCREEN_WIDTH - 125, 51, fontSmall, shadowColor, false);
+    renderText(distText, SCREEN_WIDTH - 124, 50, fontSmall, whiteColor, false);
     
-    // Kills
+    // Kills - adjusted positioning
     char killText[100];
     snprintf(killText, sizeof(killText), "KILLS: %d", enemiesKilled);
-    renderText(killText, SCREEN_WIDTH - 136, 89, fontSmall, shadowColor, false);
-    renderText(killText, SCREEN_WIDTH - 135, 88, fontSmall, whiteColor, false);
+    renderText(killText, SCREEN_WIDTH - 125, 79, fontSmall, shadowColor, false);
+    renderText(killText, SCREEN_WIDTH - 124, 78, fontSmall, whiteColor, false);
 }
 
 void Game::renderGameOver() {
