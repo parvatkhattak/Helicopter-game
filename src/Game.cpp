@@ -258,9 +258,54 @@ void Game::update() {
 }
 
 void Game::render() {
-    // Clear screen with sky blue
-    SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255);
-    SDL_RenderClear(renderer);
+    // Render gradient sky (light blue at top, lighter near horizon)
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        // Gradient from deep sky blue (top) to light horizon (bottom)
+        float ratio = static_cast<float>(y) / SCREEN_HEIGHT;
+        int r = static_cast<int>(135 + ratio * 100);  // 135 -> 235
+        int g = static_cast<int>(206 + ratio * 40);   // 206 -> 246
+        int b = static_cast<int>(235 + ratio * 20);   // 235 -> 255
+        
+        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        SDL_RenderDrawLine(renderer, 0, y, SCREEN_WIDTH, y);
+    }
+    
+    // Render parallax clouds (only during gameplay)
+    if (state == GameState::PLAYING || state == GameState::PAUSED || state == GameState::GAME_OVER) {
+        static int cloudOffset1 = 0;
+        static int cloudOffset2 = 0;
+        
+        if (state == GameState::PLAYING) {
+            cloudOffset1 = (cloudOffset1 + 1) % (SCREEN_WIDTH + 200);
+            cloudOffset2 = (cloudOffset2 + 1) % (SCREEN_WIDTH + 300);
+        }
+        
+        // Distant clouds (slower, lighter)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+        for (int i = 0; i < 4; i++) {
+            int x = (i * 400 - cloudOffset2 / 2) % (SCREEN_WIDTH + 200) - 100;
+            int y = 80 + i * 30;
+            
+            // Cloud shape (multiple ellipses)
+            for (int j = 0; j < 3; j++) {
+                SDL_Rect cloud = {x + j * 40, y, 80, 40};
+                SDL_RenderFillRect(renderer, &cloud);
+            }
+        }
+        
+        // Closer clouds (faster, more opaque)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 150);
+        for (int i = 0; i < 3; i++) {
+            int x = (i * 450 - cloudOffset1) % (SCREEN_WIDTH + 150) - 75;
+            int y = 50 + i * 40;
+            
+            // Larger cloud shape
+            for (int j = 0; j < 4; j++) {
+                SDL_Rect cloud = {x + j * 35, y, 70, 45};
+                SDL_RenderFillRect(renderer, &cloud);
+            }
+        }
+    }
     
     switch (state) {
         case GameState::MENU:
@@ -388,42 +433,89 @@ void Game::renderMenu() {
 }
 
 void Game::renderHUD() {
-    // Health bar background
-    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-    SDL_Rect healthBg = {15, 15, 205, 30};
+    // Semi-transparent dark panel for health
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
+    SDL_Rect healthPanel = {10, 10, 220, 50};
+    SDL_RenderFillRect(renderer, &healthPanel);
+    
+    // Panel border
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 200);
+    SDL_RenderDrawRect(renderer, &healthPanel);
+    
+    // Health bar background (dark red)
+    SDL_SetRenderDrawColor(renderer, 60, 0, 0, 255);
+    SDL_Rect healthBg = {20, 20, 200, 30};
     SDL_RenderFillRect(renderer, &healthBg);
     
-    // Health bar fill
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    int healthWidth = static_cast<int>(player->getHealth() * 2.0f);
-    SDL_Rect health = {15, 15, healthWidth, 30};
-    SDL_RenderFillRect(renderer, &health);
+    // Health bar fill with color based on health level
+    int health = player->getHealth();
+    int healthWidth = static_cast<int>(health * 2.0f);
+    
+    // Color changes based on health
+    if (health > 66) {
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Green
+    } else if (health > 33) {
+        SDL_SetRenderDrawColor(renderer, 255, 200, 0, 255);  // Yellow
+    } else {
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Red
+        
+        // Pulsing effect for low health
+        static int pulseTimer = 0;
+        pulseTimer = (pulseTimer + 1) % 30;
+        if (pulseTimer < 15) {
+            SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+        }
+    }
+    
+    SDL_Rect healthFill = {20, 20, healthWidth, 30};
+    SDL_RenderFillRect(renderer, &healthFill);
+    
+    // Health segments for visual feedback
+    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 150);
+    for (int i = 1; i < 10; i++) {
+        int segmentX = 20 + i * 20;
+        SDL_RenderDrawLine(renderer, segmentX, 20, segmentX, 50);
+    }
     
     // Health bar border
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &healthBg);
     
-    // Health text
+    // Health text with shadow
+    SDL_Color shadowColor = {0, 0, 0, 255};
     SDL_Color whiteColor = {255, 255, 255, 255};
     char healthText[50];
-    snprintf(healthText, sizeof(healthText), "HEALTH: %d%%", player->getHealth());
-    renderText(healthText, 120, 24, fontSmall, whiteColor, true);
+    snprintf(healthText, sizeof(healthText), "HEALTH: %d%%", health);
+    renderText(healthText, 121, 29, fontSmall, shadowColor, true);  // Shadow
+    renderText(healthText, 120, 28, fontSmall, whiteColor, true);   // Text
     
-    // Score display
-    SDL_Color yellowColor = {255, 255, 0, 255};
+    // Stats panel (semi-transparent)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
+    SDL_Rect statsPanel = {SCREEN_WIDTH - 260, 10, 250, 110};
+    SDL_RenderFillRect(renderer, &statsPanel);
+    
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 200);
+    SDL_RenderDrawRect(renderer, &statsPanel);
+    
+    // Score with glow effect
+    SDL_Color yellowColor = {255, 255, 100, 255};
+    SDL_Color goldColor = {255, 215, 0, 255};
     char scoreText[100];
     snprintf(scoreText, sizeof(scoreText), "SCORE: %d", score);
-    renderText(scoreText, SCREEN_WIDTH - 150, 20, fontSmall, yellowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 136, 29, fontSmall, shadowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 135, 28, fontSmall, yellowColor, false);
     
-    // Distance traveled
+    // Distance
     char distText[100];
     snprintf(distText, sizeof(distText), "DISTANCE: %.0fm", distanceTraveled);
-    renderText(distText, SCREEN_WIDTH - 150, 50, fontSmall, whiteColor, false);
+    renderText(distText, SCREEN_WIDTH - 136, 59, fontSmall, shadowColor, false);
+    renderText(distText, SCREEN_WIDTH - 135, 58, fontSmall, whiteColor, false);
     
-    // Enemies killed
+    // Kills
     char killText[100];
     snprintf(killText, sizeof(killText), "KILLS: %d", enemiesKilled);
-    renderText(killText, SCREEN_WIDTH - 150, 80, fontSmall, whiteColor, false);
+    renderText(killText, SCREEN_WIDTH - 136, 89, fontSmall, shadowColor, false);
+    renderText(killText, SCREEN_WIDTH - 135, 88, fontSmall, whiteColor, false);
 }
 
 void Game::renderGameOver() {
