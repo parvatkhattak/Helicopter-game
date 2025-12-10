@@ -489,32 +489,32 @@ void Game::renderHUD() {
     renderText(healthText, 121, 29, fontSmall, shadowColor, true);  // Shadow
     renderText(healthText, 120, 28, fontSmall, whiteColor, true);   // Text
     
-    // Stats panel (semi-transparent) - adjusted to fit within screen
+    // Stats panel (semi-transparent) - smaller size with safe margins
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect statsPanel = {SCREEN_WIDTH - 240, 10, 230, 100};
+    SDL_Rect statsPanel = {SCREEN_WIDTH - 200, 10, 190, 95};
     SDL_RenderFillRect(renderer, &statsPanel);
     
     SDL_SetRenderDrawColor(renderer, 100, 100, 100, 200);
     SDL_RenderDrawRect(renderer, &statsPanel);
     
-    // Score with shadow - adjusted positioning
+    // Score with shadow - safe positioning with 15px margin from panel edge
     SDL_Color yellowColor = {255, 255, 100, 255};
     char scoreText[100];
     snprintf(scoreText, sizeof(scoreText), "SCORE: %d", score);
-    renderText(scoreText, SCREEN_WIDTH - 125, 23, fontSmall, shadowColor, false);
-    renderText(scoreText, SCREEN_WIDTH - 124, 22, fontSmall, yellowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 186, 23, fontSmall, shadowColor, false);
+    renderText(scoreText, SCREEN_WIDTH - 185, 22, fontSmall, yellowColor, false);
     
-    // Distance - adjusted positioning  
+    // Distance - safe positioning
     char distText[100];
     snprintf(distText, sizeof(distText), "DIST: %.0fm", distanceTraveled);
-    renderText(distText, SCREEN_WIDTH - 125, 51, fontSmall, shadowColor, false);
-    renderText(distText, SCREEN_WIDTH - 124, 50, fontSmall, whiteColor, false);
+    renderText(distText, SCREEN_WIDTH - 186, 50, fontSmall, shadowColor, false);
+    renderText(distText, SCREEN_WIDTH - 185, 49, fontSmall, whiteColor, false);
     
-    // Kills - adjusted positioning
+    // Kills - safe positioning
     char killText[100];
     snprintf(killText, sizeof(killText), "KILLS: %d", enemiesKilled);
-    renderText(killText, SCREEN_WIDTH - 125, 79, fontSmall, shadowColor, false);
-    renderText(killText, SCREEN_WIDTH - 124, 78, fontSmall, whiteColor, false);
+    renderText(killText, SCREEN_WIDTH - 186, 77, fontSmall, shadowColor, false);
+    renderText(killText, SCREEN_WIDTH - 185, 76, fontSmall, whiteColor, false);
 }
 
 void Game::renderGameOver() {
