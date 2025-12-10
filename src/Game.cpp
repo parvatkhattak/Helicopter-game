@@ -433,9 +433,9 @@ void Game::renderMenu() {
 }
 
 void Game::renderHUD() {
-    // Semi-transparent dark panel for health
+    // Semi-transparent dark panel for health - compact size with safe margins
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-    SDL_Rect healthPanel = {10, 10, 220, 50};
+    SDL_Rect healthPanel = {10, 10, 200, 45};
     SDL_RenderFillRect(renderer, &healthPanel);
     
     // Panel border
@@ -444,12 +444,12 @@ void Game::renderHUD() {
     
     // Health bar background (dark red)
     SDL_SetRenderDrawColor(renderer, 60, 0, 0, 255);
-    SDL_Rect healthBg = {20, 20, 200, 30};
+    SDL_Rect healthBg = {18, 18, 184, 25};
     SDL_RenderFillRect(renderer, &healthBg);
     
     // Health bar fill with color based on health level
     int health = player->getHealth();
-    int healthWidth = static_cast<int>(health * 2.0f);
+    int healthWidth = static_cast<int>(health * 1.84f);  // Scale to 184px max
     
     // Color changes based on health
     if (health > 66) {
@@ -467,27 +467,27 @@ void Game::renderHUD() {
         }
     }
     
-    SDL_Rect healthFill = {20, 20, healthWidth, 30};
+    SDL_Rect healthFill = {18, 18, healthWidth, 25};
     SDL_RenderFillRect(renderer, &healthFill);
     
     // Health segments for visual feedback
     SDL_SetRenderDrawColor(renderer, 20, 20, 20, 150);
     for (int i = 1; i < 10; i++) {
-        int segmentX = 20 + i * 20;
-        SDL_RenderDrawLine(renderer, segmentX, 20, segmentX, 50);
+        int segmentX = 18 + i * 18;
+        SDL_RenderDrawLine(renderer, segmentX, 18, segmentX, 43);
     }
     
     // Health bar border
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &healthBg);
     
-    // Health text with shadow
+    // Health text with shadow - centered in panel
     SDL_Color shadowColor = {0, 0, 0, 255};
     SDL_Color whiteColor = {255, 255, 255, 255};
     char healthText[50];
     snprintf(healthText, sizeof(healthText), "HP: %d%%", health);
-    renderText(healthText, 121, 29, fontSmall, shadowColor, true);  // Shadow
-    renderText(healthText, 120, 28, fontSmall, whiteColor, true);   // Text
+    renderText(healthText, 111, 26, fontSmall, shadowColor, true);  // Shadow
+    renderText(healthText, 110, 25, fontSmall, whiteColor, true);   // Text
     
     // Stats panel (semi-transparent) - smaller size with safe margins
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
