@@ -481,13 +481,13 @@ void Game::renderHUD() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(renderer, &healthBg);
     
-    // Health text with shadow - centered in panel
+    // Health text with shadow - properly centered in panel
     SDL_Color shadowColor = {0, 0, 0, 255};
     SDL_Color whiteColor = {255, 255, 255, 255};
     char healthText[50];
     snprintf(healthText, sizeof(healthText), "HP: %d%%", health);
-    renderText(healthText, 111, 26, fontSmall, shadowColor, true);  // Shadow
-    renderText(healthText, 110, 25, fontSmall, whiteColor, true);   // Text
+    renderText(healthText, 111, 31, fontSmall, shadowColor, true);  // Shadow
+    renderText(healthText, 110, 30, fontSmall, whiteColor, true);   // Text
     
     // Stats panel (semi-transparent) - smaller size with safe margins
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
