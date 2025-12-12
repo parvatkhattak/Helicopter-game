@@ -363,17 +363,35 @@ void Game::render() {
 }
 
 void Game::renderMenu() {
-    // Draw clouds in background
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
-    SDL_Rect cloud1 = {100, 80, 120, 60};
-    SDL_Rect cloud2 = {900, 120, 150, 70};
-    SDL_Rect cloud3 = {450, 50, 100, 50};
-    SDL_RenderFillRect(renderer, &cloud1);
-    SDL_RenderFillRect(renderer, &cloud2);
-    SDL_RenderFillRect(renderer, &cloud3);
+    // Render comfortable gradient sky for menu (darker, easier on eyes)
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        // Gradient from deep blue at top to lighter blue at bottom
+        float ratio = static_cast<float>(y) / SCREEN_HEIGHT;
+        int r = static_cast<int>(40 + ratio * 60);   // 40 -> 100
+        int g = static_cast<int>(60 + ratio * 80);   // 60 -> 140
+        int b = static_cast<int>(100 + ratio * 100); // 100 -> 200
+        
+        SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        SDL_RenderDrawLine(renderer, 0, y, SCREEN_WIDTH, y);
+    }
+    
+    // Soft, semi-transparent clouds (much more comfortable)
+    SDL_SetRenderDrawColor(renderer, 200, 220, 240, 80);
+    
+    // Scattered clouds
+    for (int i = 0; i < 5; i++) {
+        int x = 150 + i * 250;
+        int y = 60 + (i % 3) * 40;
+        
+        // Cloud shape with soft edges
+        for (int j = 0; j < 3; j++) {
+            SDL_Rect cloud = {x + j * 35, y, 70, 40};
+            SDL_RenderFillRect(renderer, &cloud);
+        }
+    }
     
     // Title
-    SDL_Color titleColor = {100, 255, 100, 255};
+    SDL_Color titleColor = {255, 255, 150, 255};  // Light yellow for better contrast
     renderText("HELICOPTER GAME", SCREEN_WIDTH/2, 150, fontLarge, titleColor, true);
     
     // Decorative helicopters
