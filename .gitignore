@@ -1,8 +1,16 @@
 # Build artifacts
 *.o
 *.out
+*.a
+*.so
+*.dylib
 helicopter_game
 build/
+bin/
+obj/
+
+# User data (should not be committed)
+highscore.txt
 
 # IDE files
 .vscode/
@@ -10,10 +18,24 @@ build/
 *.swp
 *.swo
 *~
+.clangd/
+compile_commands.json
 
 # OS files
 .DS_Store
 Thumbs.db
+*.log
 
 # Asset cache
 assets/.cache/
+
+# Debug files
+*.dSYM/
+core
+vgcore.*
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+.*.un~
